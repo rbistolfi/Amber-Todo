@@ -83,6 +83,7 @@
 	    loadJS("Benchfib.js");
 	    loadJS("Kernel-Tests.js");
 	    loadJS("JQuery-Tests.js");
+        loadJS("TodoList.js");
 	}
 
 	// Load other files, possibly with another directory prefix than 'js'
