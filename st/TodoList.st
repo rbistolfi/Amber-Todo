@@ -1,5 +1,5 @@
 Widget subclass: #Todo
-	instanceVariableNames: 'observers isDone text id'
+	instanceVariableNames: 'observers isDone text id onTodoChanged'
 	category: 'TodoList'!
 
 !Todo methodsFor: 'accessing'!
@@ -21,8 +21,7 @@ text: anObject
 !
 
 toggleIsDone
-	self isDone: isDone not.
-	self notify
+	self isDone: isDone not
 !
 
 id
@@ -31,6 +30,10 @@ id
 
 id: aString
 	id := aString
+!
+
+onTodoChangedDo: aBlock
+	onTodoChanged := aBlock
 ! !
 
 !Todo methodsFor: 'initializing'!
@@ -39,22 +42,6 @@ initialize
 	super initialize.
 	isDone := false.
 	observers := Array new.
-! !
-
-!Todo methodsFor: 'observer'!
-
-notify
-	"Notify observers about state change"
-	observers do: [ :each | each onTodoChanged: self ]
-!
-
-addObserver: anObject
-	observers add: anObject
-!
-
-removeObserver: anObject
-	"Remove observer from the observers array"
-	observers remove: anObject
 ! !
 
 !Todo methodsFor: 'rendering'!
@@ -66,10 +53,14 @@ renderOn: html
 		with: [
                   input := html input
                   	type: 'checkbox';
-                  	onChange: [
-                          isDone := isDone not.
+                  	onClick: [
+                          self toggleIsDone.
+                          onTodoChanged value: self. 
                           (input asJQuery next) toggleClass: 'done' ].
-		html span with: text ]
+		html span with: text ].
+	isDone ifTrue: [ 
+          input at: 'checked' put: 'checked'.
+          (input asJQuery next) addClass: 'done'].
 ! !
 
 !Todo class methodsFor: 'not yet classified'!
@@ -85,6 +76,13 @@ fromDictionary: aDict
 
 newWithText: aString
 	^ self new text: aString
+!
+
+fromDictionary: aDict withCallback: aBlock
+	| todo |
+	todo := self fromDictionary: aDict.
+	todo onTodoChangedDo: aBlock.
+	^ todo
 ! !
 
 Widget subclass: #TodoList
@@ -94,8 +92,10 @@ Widget subclass: #TodoList
 !TodoList methodsFor: 'adding/removing'!
 
 addTodo: aTodo
-       todos add: aTodo.
-       aTodo appendToJQuery: container asJQuery.
+	aTodo id: (todos lenght + 1) asString.
+	aTodo onTodoChangedDo: [ :todo | todos at: (todo id asNumber) put: todo ].
+       	todos add: aTodo.
+       	aTodo appendToJQuery: container asJQuery.
 !
 
 removeTodo: aTodo
@@ -103,15 +103,10 @@ removeTodo: aTodo
 
 !TodoList methodsFor: 'events'!
 
-onTodoChanged: aTodo
-	Transcript show: aTodo text;cr
-!
-
 handleInput: anEvent
 	| text todo html |
         text := anEvent target value.
         todo := Todo newWithText: text.
-	todo id: (todos lenght + 1) asString.
  	self addTodo: todo
 ! !
 
@@ -177,7 +172,7 @@ renderTodosOn: html
 		id: 'todos';
 		with: [
                   html ol
-                  	with: [ todos do: [ :todo | (Todo fromDictionary: todo) renderOn: html ]]]
+                  	with: [ todos do: [ :todo | (Todo fromDictionary: todo withCallback:  [ :todo | todos at: (todo id asNumber) put: todo ]) renderOn: html ]]]
 ! !
 
 !TodoList class methodsFor: 'not yet classified'!
@@ -197,7 +192,7 @@ at: anIndex
 !
 
 at: anIndex put: anObject
-	array at: anIndex put. anObject.
+	array at: anIndex put: anObject.
 	self save
 !
 
@@ -249,7 +244,8 @@ initializeStorage
 !TodoStorage methodsFor: 'iterating'!
 
 do: aBlock
-	^ array do: aBlock
+	array do: aBlock.
+	self save.
 ! !
 
 !TodoStorage methodsFor: 'persistence'!

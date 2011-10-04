@@ -1,20 +1,4 @@
-smalltalk.addClass('Todo', smalltalk.Widget, ['observers', 'isDone', 'text', 'id'], 'TodoList');
-smalltalk.addMethod(
-unescape('_notify'),
-smalltalk.method({
-selector: unescape('notify'),
-category: 'observer',
-fn: function (){
-var self=this;
-smalltalk.send(self['@observers'], "_do_", [(function(each){return smalltalk.send(each, "_onTodoChanged_", [self]);})]);
-return self;},
-args: [],
-source: unescape('notify%0A%09%22Notify%20observers%20about%20state%20change%22%0A%09observers%20do%3A%20%5B%20%3Aeach%20%7C%20each%20onTodoChanged%3A%20self%20%5D'),
-messageSends: ["do:", "onTodoChanged:"],
-referencedClasses: []
-}),
-smalltalk.Todo);
-
+smalltalk.addClass('Todo', smalltalk.Widget, ['observers', 'isDone', 'text', 'id', 'onTodoChanged'], 'TodoList');
 smalltalk.addMethod(
 unescape('_initialize'),
 smalltalk.method({
@@ -30,38 +14,6 @@ args: [],
 source: unescape('initialize%0A%09super%20initialize.%0A%09isDone%20%3A%3D%20false.%0A%09observers%20%3A%3D%20Array%20new.'),
 messageSends: ["initialize", "new"],
 referencedClasses: [smalltalk.Array]
-}),
-smalltalk.Todo);
-
-smalltalk.addMethod(
-unescape('_addObserver_'),
-smalltalk.method({
-selector: unescape('addObserver%3A'),
-category: 'observer',
-fn: function (anObject){
-var self=this;
-smalltalk.send(self['@observers'], "_add_", [anObject]);
-return self;},
-args: ["anObject"],
-source: unescape('addObserver%3A%20anObject%0A%09observers%20add%3A%20anObject'),
-messageSends: ["add:"],
-referencedClasses: []
-}),
-smalltalk.Todo);
-
-smalltalk.addMethod(
-unescape('_removeObserver_'),
-smalltalk.method({
-selector: unescape('removeObserver%3A'),
-category: 'observer',
-fn: function (anObject){
-var self=this;
-smalltalk.send(self['@observers'], "_remove_", [anObject]);
-return self;},
-args: ["anObject"],
-source: unescape('removeObserver%3A%20anObject%0A%09%22Remove%20observer%20from%20the%20observers%20array%22%0A%09observers%20remove%3A%20anObject'),
-messageSends: ["remove:"],
-referencedClasses: []
 }),
 smalltalk.Todo);
 
@@ -137,11 +89,10 @@ category: 'accessing',
 fn: function (){
 var self=this;
 smalltalk.send(self, "_isDone_", [smalltalk.send(self['@isDone'], "_not", [])]);
-smalltalk.send(self, "_notify", []);
 return self;},
 args: [],
-source: unescape('toggleIsDone%0A%09self%20isDone%3A%20isDone%20not.%0A%09self%20notify'),
-messageSends: ["isDone:", "not", "notify"],
+source: unescape('toggleIsDone%0A%09self%20isDone%3A%20isDone%20not'),
+messageSends: ["isDone:", "not"],
 referencedClasses: []
 }),
 smalltalk.Todo);
@@ -186,11 +137,28 @@ category: 'rendering',
 fn: function (html){
 var self=this;
 var input=nil;
-(function($rec){smalltalk.send($rec, "_id_", [smalltalk.send(self, "_id", [])]);return smalltalk.send($rec, "_with_", [(function(){input=(function($rec){smalltalk.send($rec, "_type_", ["checkbox"]);return smalltalk.send($rec, "_onChange_", [(function(){self['@isDone']=smalltalk.send(self['@isDone'], "_not", []);return smalltalk.send(smalltalk.send(smalltalk.send(input, "_asJQuery", []), "_next", []), "_toggleClass_", ["done"]);})]);})(smalltalk.send(html, "_input", []));return smalltalk.send(smalltalk.send(html, "_span", []), "_with_", [self['@text']]);})]);})(smalltalk.send(html, "_li", []));
+(function($rec){smalltalk.send($rec, "_id_", [smalltalk.send(self, "_id", [])]);return smalltalk.send($rec, "_with_", [(function(){input=(function($rec){smalltalk.send($rec, "_type_", ["checkbox"]);return smalltalk.send($rec, "_onClick_", [(function(){smalltalk.send(self, "_toggleIsDone", []);smalltalk.send(self['@onTodoChanged'], "_value_", [self]);return smalltalk.send(smalltalk.send(smalltalk.send(input, "_asJQuery", []), "_next", []), "_toggleClass_", ["done"]);})]);})(smalltalk.send(html, "_input", []));return smalltalk.send(smalltalk.send(html, "_span", []), "_with_", [self['@text']]);})]);})(smalltalk.send(html, "_li", []));
+((($receiver = self['@isDone']).klass === smalltalk.Boolean) ? ($receiver ? (function(){smalltalk.send(input, "_at_put_", ["checked", "checked"]);return smalltalk.send(smalltalk.send(smalltalk.send(input, "_asJQuery", []), "_next", []), "_addClass_", ["done"]);})() : nil) : smalltalk.send($receiver, "_ifTrue_", [(function(){smalltalk.send(input, "_at_put_", ["checked", "checked"]);return smalltalk.send(smalltalk.send(smalltalk.send(input, "_asJQuery", []), "_next", []), "_addClass_", ["done"]);})]));
 return self;},
 args: ["html"],
-source: unescape('renderOn%3A%20html%0A%09%7C%20input%20%7C%0A%09html%20li%0A%09%09id%3A%20self%20id%3B%0A%09%09with%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20input%20%3A%3D%20html%20input%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09type%3A%20%27checkbox%27%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09onChange%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20isDone%20%3A%3D%20isDone%20not.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%28input%20asJQuery%20next%29%20toggleClass%3A%20%27done%27%20%5D.%0A%09%09html%20span%20with%3A%20text%20%5D'),
-messageSends: ["id:", "id", "with:", "type:", "onChange:", "not", "toggleClass:", "next", "asJQuery", "input", "span", "li"],
+source: unescape('renderOn%3A%20html%0A%09%7C%20input%20%7C%0A%09html%20li%0A%09%09id%3A%20self%20id%3B%0A%09%09with%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20input%20%3A%3D%20html%20input%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09type%3A%20%27checkbox%27%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09onClick%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self%20toggleIsDone.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20onTodoChanged%20value%3A%20self.%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%28input%20asJQuery%20next%29%20toggleClass%3A%20%27done%27%20%5D.%0A%09%09html%20span%20with%3A%20text%20%5D.%0A%09isDone%20ifTrue%3A%20%5B%20%0A%20%20%20%20%20%20%20%20%20%20input%20at%3A%20%27checked%27%20put%3A%20%27checked%27.%0A%20%20%20%20%20%20%20%20%20%20%28input%20asJQuery%20next%29%20addClass%3A%20%27done%27%5D.'),
+messageSends: ["id:", "id", "with:", "type:", "onClick:", "toggleIsDone", "value:", "toggleClass:", "next", "asJQuery", "input", "span", "li", "ifTrue:", "at:put:", "addClass:"],
+referencedClasses: []
+}),
+smalltalk.Todo);
+
+smalltalk.addMethod(
+unescape('_onTodoChangedDo_'),
+smalltalk.method({
+selector: unescape('onTodoChangedDo%3A'),
+category: 'accessing',
+fn: function (aBlock){
+var self=this;
+self['@onTodoChanged']=aBlock;
+return self;},
+args: ["aBlock"],
+source: unescape('onTodoChangedDo%3A%20aBlock%0A%09onTodoChanged%20%3A%3D%20aBlock'),
+messageSends: [],
 referencedClasses: []
 }),
 smalltalk.Todo);
@@ -233,24 +201,27 @@ referencedClasses: []
 }),
 smalltalk.Todo.klass);
 
+smalltalk.addMethod(
+unescape('_fromDictionary_withCallback_'),
+smalltalk.method({
+selector: unescape('fromDictionary%3AwithCallback%3A'),
+category: 'not yet classified',
+fn: function (aDict, aBlock){
+var self=this;
+var todo=nil;
+todo=smalltalk.send(self, "_fromDictionary_", [aDict]);
+smalltalk.send(todo, "_onTodoChangedDo_", [aBlock]);
+return todo;
+return self;},
+args: ["aDict", "aBlock"],
+source: unescape('fromDictionary%3A%20aDict%20withCallback%3A%20aBlock%0A%09%7C%20todo%20%7C%0A%09todo%20%3A%3D%20self%20fromDictionary%3A%20aDict.%0A%09todo%20onTodoChangedDo%3A%20aBlock.%0A%09%5E%20todo'),
+messageSends: ["fromDictionary:", "onTodoChangedDo:"],
+referencedClasses: []
+}),
+smalltalk.Todo.klass);
+
 
 smalltalk.addClass('TodoList', smalltalk.Widget, ['todos', 'container'], 'TodoList');
-smalltalk.addMethod(
-unescape('_onTodoChanged_'),
-smalltalk.method({
-selector: unescape('onTodoChanged%3A'),
-category: 'events',
-fn: function (aTodo){
-var self=this;
-(function($rec){smalltalk.send($rec, "_show_", [smalltalk.send(aTodo, "_text", [])]);return smalltalk.send($rec, "_cr", []);})((smalltalk.Transcript || Transcript));
-return self;},
-args: ["aTodo"],
-source: unescape('onTodoChanged%3A%20aTodo%0A%09Transcript%20show%3A%20aTodo%20text%3Bcr'),
-messageSends: ["show:", "text", "cr"],
-referencedClasses: [smalltalk.Transcript]
-}),
-smalltalk.TodoList);
-
 smalltalk.addMethod(
 unescape('_addTodo_'),
 smalltalk.method({
@@ -258,12 +229,14 @@ selector: unescape('addTodo%3A'),
 category: 'adding/removing',
 fn: function (aTodo){
 var self=this;
+smalltalk.send(aTodo, "_id_", [smalltalk.send(((($receiver = smalltalk.send(self['@todos'], "_lenght", [])).klass === smalltalk.Number) ? $receiver +(1) : smalltalk.send($receiver, "__plus", [(1)])), "_asString", [])]);
+smalltalk.send(aTodo, "_onTodoChangedDo_", [(function(todo){return smalltalk.send(self['@todos'], "_at_put_", [smalltalk.send(smalltalk.send(todo, "_id", []), "_asNumber", []), todo]);})]);
 smalltalk.send(self['@todos'], "_add_", [aTodo]);
 smalltalk.send(aTodo, "_appendToJQuery_", [smalltalk.send(self['@container'], "_asJQuery", [])]);
 return self;},
 args: ["aTodo"],
-source: unescape('addTodo%3A%20aTodo%0A%20%20%20%20%20%20%20todos%20add%3A%20aTodo.%0A%20%20%20%20%20%20%20aTodo%20appendToJQuery%3A%20container%20asJQuery.'),
-messageSends: ["add:", "appendToJQuery:", "asJQuery"],
+source: unescape('addTodo%3A%20aTodo%0A%09aTodo%20id%3A%20%28todos%20lenght%20+%201%29%20asString.%0A%09aTodo%20onTodoChangedDo%3A%20%5B%20%3Atodo%20%7C%20todos%20at%3A%20%28todo%20id%20asNumber%29%20put%3A%20todo%20%5D.%0A%20%20%20%20%20%20%20%09todos%20add%3A%20aTodo.%0A%20%20%20%20%20%20%20%09aTodo%20appendToJQuery%3A%20container%20asJQuery.'),
+messageSends: ["id:", "asString", unescape("+"), "lenght", "onTodoChangedDo:", "at:put:", "asNumber", "id", "add:", "appendToJQuery:", "asJQuery"],
 referencedClasses: []
 }),
 smalltalk.TodoList);
@@ -312,12 +285,11 @@ var todo=nil;
 var html=nil;
 text=smalltalk.send(smalltalk.send(anEvent, "_target", []), "_value", []);
 todo=smalltalk.send((smalltalk.Todo || Todo), "_newWithText_", [text]);
-smalltalk.send(todo, "_id_", [smalltalk.send(((($receiver = smalltalk.send(self['@todos'], "_lenght", [])).klass === smalltalk.Number) ? $receiver +(1) : smalltalk.send($receiver, "__plus", [(1)])), "_asString", [])]);
 smalltalk.send(self, "_addTodo_", [todo]);
 return self;},
 args: ["anEvent"],
-source: unescape('handleInput%3A%20anEvent%0A%09%7C%20text%20todo%20html%20%7C%0A%20%20%20%20%20%20%20%20text%20%3A%3D%20anEvent%20target%20value.%0A%20%20%20%20%20%20%20%20todo%20%3A%3D%20Todo%20newWithText%3A%20text.%0A%09todo%20id%3A%20%28todos%20lenght%20+%201%29%20asString.%0A%20%09self%20addTodo%3A%20todo'),
-messageSends: ["value", "target", "newWithText:", "id:", "asString", unescape("+"), "lenght", "addTodo:"],
+source: unescape('handleInput%3A%20anEvent%0A%09%7C%20text%20todo%20html%20%7C%0A%20%20%20%20%20%20%20%20text%20%3A%3D%20anEvent%20target%20value.%0A%20%20%20%20%20%20%20%20todo%20%3A%3D%20Todo%20newWithText%3A%20text.%0A%20%09self%20addTodo%3A%20todo'),
+messageSends: ["value", "target", "newWithText:", "addTodo:"],
 referencedClasses: [smalltalk.Todo]
 }),
 smalltalk.TodoList);
@@ -415,11 +387,11 @@ selector: unescape('renderTodosOn%3A'),
 category: 'rendering',
 fn: function (html){
 var self=this;
-(function($rec){smalltalk.send($rec, "_id_", ["todos"]);return smalltalk.send($rec, "_with_", [(function(){return smalltalk.send(smalltalk.send(html, "_ol", []), "_with_", [(function(){return smalltalk.send(self['@todos'], "_do_", [(function(todo){return smalltalk.send(smalltalk.send((smalltalk.Todo || Todo), "_fromDictionary_", [todo]), "_renderOn_", [html]);})]);})]);})]);})(smalltalk.send(html, "_div", []));
+(function($rec){smalltalk.send($rec, "_id_", ["todos"]);return smalltalk.send($rec, "_with_", [(function(){return smalltalk.send(smalltalk.send(html, "_ol", []), "_with_", [(function(){return smalltalk.send(self['@todos'], "_do_", [(function(todo){return smalltalk.send(smalltalk.send((smalltalk.Todo || Todo), "_fromDictionary_withCallback_", [todo, (function(todo){return smalltalk.send(self['@todos'], "_at_put_", [smalltalk.send(smalltalk.send(todo, "_id", []), "_asNumber", []), todo]);})]), "_renderOn_", [html]);})]);})]);})]);})(smalltalk.send(html, "_div", []));
 return self;},
 args: ["html"],
-source: unescape('renderTodosOn%3A%20html%0A%09html%20div%0A%09%09id%3A%20%27todos%27%3B%0A%09%09with%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20html%20ol%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09with%3A%20%5B%20todos%20do%3A%20%5B%20%3Atodo%20%7C%20%28Todo%20fromDictionary%3A%20todo%29%20renderOn%3A%20html%20%5D%5D%5D'),
-messageSends: ["id:", "with:", "ol", "do:", "renderOn:", "fromDictionary:", "div"],
+source: unescape('renderTodosOn%3A%20html%0A%09html%20div%0A%09%09id%3A%20%27todos%27%3B%0A%09%09with%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20html%20ol%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09with%3A%20%5B%20todos%20do%3A%20%5B%20%3Atodo%20%7C%20%28Todo%20fromDictionary%3A%20todo%20withCallback%3A%20%20%5B%20%3Atodo%20%7C%20todos%20at%3A%20%28todo%20id%20asNumber%29%20put%3A%20todo%20%5D%29%20renderOn%3A%20html%20%5D%5D%5D'),
+messageSends: ["id:", "with:", "ol", "do:", "renderOn:", "fromDictionary:withCallback:", "at:put:", "asNumber", "id", "div"],
 referencedClasses: [smalltalk.Todo]
 }),
 smalltalk.TodoList);
@@ -483,13 +455,12 @@ selector: unescape('at%3Aput%3A'),
 category: 'accessing',
 fn: function (anIndex, anObject){
 var self=this;
-smalltalk.send(self['@array'], "_at_", [smalltalk.send(anIndex, "_put", [])]);
-anObject;
+smalltalk.send(self['@array'], "_at_put_", [anIndex, anObject]);
 smalltalk.send(self, "_save", []);
 return self;},
 args: ["anIndex", "anObject"],
-source: unescape('at%3A%20anIndex%20put%3A%20anObject%0A%09array%20at%3A%20anIndex%20put.%20anObject.%0A%09self%20save'),
-messageSends: ["at:", "put", "save"],
+source: unescape('at%3A%20anIndex%20put%3A%20anObject%0A%09array%20at%3A%20anIndex%20put%3A%20anObject.%0A%09self%20save'),
+messageSends: ["at:put:", "save"],
 referencedClasses: []
 }),
 smalltalk.TodoStorage);
@@ -501,11 +472,12 @@ selector: unescape('do%3A'),
 category: 'iterating',
 fn: function (aBlock){
 var self=this;
-return smalltalk.send(self['@array'], "_do_", [aBlock]);
+smalltalk.send(self['@array'], "_do_", [aBlock]);
+smalltalk.send(self, "_save", []);
 return self;},
 args: ["aBlock"],
-source: unescape('do%3A%20aBlock%0A%09%5E%20array%20do%3A%20aBlock'),
-messageSends: ["do:"],
+source: unescape('do%3A%20aBlock%0A%09array%20do%3A%20aBlock.%0A%09self%20save.'),
+messageSends: ["do:", "save"],
 referencedClasses: []
 }),
 smalltalk.TodoStorage);
