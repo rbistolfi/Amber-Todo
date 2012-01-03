@@ -1,0 +1,260 @@
+Widget subclass: #Todo
+	instanceVariableNames: 'observers isDone text id'
+	category: 'TodoList'!
+
+!Todo methodsFor: 'accessing'!
+
+isDone
+	^ isDone
+!
+
+isDone: aBool
+	isDone := aBool.
+!
+
+text
+	^ text
+!
+
+text: anObject
+	text := anObject
+!
+
+toggleIsDone
+	self isDone: isDone not.
+	self notify
+!
+
+id
+	^ id
+!
+
+id: aString
+	id := aString
+! !
+
+!Todo methodsFor: 'initializing'!
+
+initialize
+	super initialize.
+	isDone := false.
+	observers := Array new.
+! !
+
+!Todo methodsFor: 'observer'!
+
+notify
+	"Notify observers about state change"
+	observers do: [ :each | each onTodoChanged: self ]
+!
+
+addObserver: anObject
+	observers add: anObject
+!
+
+removeObserver: anObject
+	"Remove observer from the observers array"
+	observers remove: anObject
+! !
+
+!Todo methodsFor: 'rendering'!
+
+renderOn: html
+	| input |
+	html li
+		id: self id;
+		with: [
+                  input := html input
+                  	type: 'checkbox';
+                  	onChange: [
+                          isDone := isDone not.
+                          (input asJQuery next) toggleClass: 'done' ].
+		html span with: text ]
+! !
+
+!Todo class methodsFor: 'not yet classified'!
+
+fromDictionary: aDict
+	| todo |
+	todo := self new.
+	todo id: (aDict at: 'id').
+	todo text: (aDict at: 'text').
+	todo isDone: (aDict at: 'isDone').
+	^ todo
+!
+
+newWithText: aString
+	^ self new text: aString
+! !
+
+Widget subclass: #TodoList
+	instanceVariableNames: 'todos container'
+	category: 'TodoList'!
+
+!TodoList methodsFor: 'adding/removing'!
+
+addTodo: aTodo
+       todos add: aTodo.
+       aTodo appendToJQuery: container asJQuery.
+!
+
+removeTodo: aTodo
+! !
+
+!TodoList methodsFor: 'events'!
+
+onTodoChanged: aTodo
+	Transcript show: aTodo text;cr
+!
+
+handleInput: anEvent
+	| text todo html |
+        text := anEvent target value.
+        todo := Todo newWithText: text.
+	todo id: (todos lenght + 1) asString.
+ 	self addTodo: todo
+! !
+
+!TodoList methodsFor: 'initializing'!
+
+initialize
+	super initialize.
+	todos := TodoStorage new.
+	container := 'div#todos ol'
+! !
+
+!TodoList methodsFor: 'rendering'!
+
+renderOn: html
+	html div
+		id: 'application';
+		with: [
+                  self renderHeaderOn: html.
+                  self renderBodyOn: html.
+                  self renderFooterOn: html. ]
+!
+
+renderBodyOn: html
+	html div
+		id: 'body';
+		class: 'section';
+		with: [
+                  self renderFormOn: html.
+                  self renderTodosOn: html ]
+!
+
+renderFooterOn: html
+	html div
+		id: 'footer';
+		class: 'section';
+		with: [ html p with: 'Example Todo application for Amber Smalltalk by rbistolfi' ]
+!
+
+renderFormOn: html
+	| input defaultText |
+	defaultText := 'What needs to be done?'.
+	html div
+		id: 'form';
+		with: [
+                   input := html input
+                  	type: 'text';
+                  	onKeyUp: [ :event |
+                                  (event keyCode = 13) ifTrue: [
+                                    self handleInput: event.
+                                    input asJQuery val: '' ] ] ].
+	input element placeholder: defaultText.
+!
+
+renderHeaderOn: html
+	html div
+		id: 'header';
+		class: 'section';
+		with: [ html h1 with: 'Todos' ]
+!
+
+renderTodosOn: html
+	html div
+		id: 'todos';
+		with: [
+                  html ol
+                  	with: [ todos do: [ :todo | (Todo fromDictionary: todo) renderOn: html ]]]
+! !
+
+!TodoList class methodsFor: 'not yet classified'!
+
+run
+	self new appendToJQuery: 'body' asJQuery
+! !
+
+Object subclass: #TodoStorage
+	instanceVariableNames: 'storage array'
+	category: 'TodoList'!
+
+!TodoStorage methodsFor: 'accessing'!
+
+at: anIndex
+	^ array at: anIndex
+!
+
+at: anIndex put: anObject
+	array at: anIndex put. anObject.
+	self save
+!
+
+getArray
+	| anArray aJSONArray |
+	aJSONArray := storage getItem: 'TodoList'.
+	anArray := aJSONArray ifNil: [ self initializeStorage ] ifNotNil: [ smalltalk readJSON: (JSON parse: aJSONArray) ].
+	^ anArray
+!
+
+setArray
+	^ self save
+!
+
+lenght
+	^ self size
+!
+
+size
+	^ array size
+! !
+
+!TodoStorage methodsFor: 'adding/removing'!
+
+add: anObject
+	array add: anObject.
+	self save.
+!
+
+remove: anObject
+	array remove: anObject.
+	self save
+! !
+
+!TodoStorage methodsFor: 'initializing'!
+
+initialize
+	storage := localStorage.
+	array := self getArray
+!
+
+initializeStorage
+	| anArray |
+	anArray := Array new.
+	storage setItem: 'TodoList' value: anArray asJSON.
+	^ anArray
+! !
+
+!TodoStorage methodsFor: 'iterating'!
+
+do: aBlock
+	^ array do: aBlock
+! !
+
+!TodoStorage methodsFor: 'persistence'!
+
+save
+	storage setItem: 'TodoList' value: array asJSON
+! !
+
