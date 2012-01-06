@@ -1,4 +1,4 @@
-smalltalk.addClass('Todo', smalltalk.Widget, ['observers', 'isDone', 'text', 'id', 'onTodoChanged', 'onDeleteClicked'], 'TodoList');
+smalltalk.addClass('Todo', smalltalk.Widget, ['isDone', 'text', 'id', 'onTodoChanged', 'onDeleteClicked'], 'TodoList');
 smalltalk.addMethod(
 unescape('_initialize'),
 smalltalk.method({
@@ -8,12 +8,11 @@ fn: function (){
 var self=this;
 smalltalk.send(self, "_initialize", [], smalltalk.Widget);
 self['@isDone']=false;
-self['@observers']=smalltalk.send((smalltalk.Array || Array), "_new", []);
 return self;},
 args: [],
-source: unescape('initialize%0A%09super%20initialize.%0A%09isDone%20%3A%3D%20false.%0A%09observers%20%3A%3D%20Array%20new.'),
-messageSends: ["initialize", "new"],
-referencedClasses: [smalltalk.Array]
+source: unescape('initialize%0A%09super%20initialize.%0A%09isDone%20%3A%3D%20false.'),
+messageSends: ["initialize"],
+referencedClasses: []
 }),
 smalltalk.Todo);
 
@@ -274,7 +273,7 @@ referencedClasses: []
 smalltalk.Todo.klass);
 
 
-smalltalk.addClass('TodoList', smalltalk.Widget, ['todos', 'container'], 'TodoList');
+smalltalk.addClass('TodoList', smalltalk.Widget, ['todos', 'container', 'count'], 'TodoList');
 smalltalk.addMethod(
 unescape('_addTodo_'),
 smalltalk.method({
@@ -282,15 +281,16 @@ selector: unescape('addTodo%3A'),
 category: 'adding/removing',
 fn: function (aTodo){
 var self=this;
-(($receiver = smalltalk.send(aTodo, "_id", [])) == nil || $receiver == undefined) ? (function(){return smalltalk.send(aTodo, "_id_", [smalltalk.send(((($receiver = smalltalk.send(self['@todos'], "_lenght", [])).klass === smalltalk.Number) ? $receiver +(1) : smalltalk.send($receiver, "__plus", [(1)])), "_asString", [])]);})() : $receiver;
-smalltalk.send(aTodo, "_onTodoChangedDo_", [(function(todo){return smalltalk.send(self['@todos'], "_at_put_", [smalltalk.send(smalltalk.send(todo, "_id", []), "_asNumber", []), todo]);})]);
+smalltalk.send(aTodo, "_id_", [smalltalk.send(self['@count'], "_asString", [])]);
+smalltalk.send(aTodo, "_onTodoChangedDo_", [(function(todo){return smalltalk.send(self['@todos'], "_at_put_", [smalltalk.send(self['@todos'], "_indexOf_", [todo]), todo]);})]);
 smalltalk.send(aTodo, "_onDeleteClickedDo_", [(function(todo){return smalltalk.send(self, "_removeTodo_", [todo]);})]);
 smalltalk.send(self['@todos'], "_add_", [aTodo]);
 smalltalk.send(aTodo, "_appendToJQuery_", [smalltalk.send(self['@container'], "_asJQuery", [])]);
+self['@count']=((($receiver = self['@count']).klass === smalltalk.Number) ? $receiver +(1) : smalltalk.send($receiver, "__plus", [(1)]));
 return self;},
 args: ["aTodo"],
-source: unescape('addTodo%3A%20aTodo%0A%09aTodo%20id%20ifNil%3A%20%5B%20aTodo%20id%3A%20%28todos%20lenght%20+%201%29%20asString%20%5D.%0A%09aTodo%20onTodoChangedDo%3A%20%5B%20%3Atodo%20%7C%20todos%20at%3A%20%28todo%20id%20asNumber%29%20put%3A%20todo%20%5D.%0A%09aTodo%20onDeleteClickedDo%3A%20%5B%20%3Atodo%20%7C%20self%20removeTodo%3A%20todo%20%5D.%0A%20%20%20%20%20%20%20%09todos%20add%3A%20aTodo.%0A%20%20%20%20%20%20%20%09aTodo%20appendToJQuery%3A%20container%20asJQuery.'),
-messageSends: ["ifNil:", "id", "id:", "asString", unescape("+"), "lenght", "onTodoChangedDo:", "at:put:", "asNumber", "onDeleteClickedDo:", "removeTodo:", "add:", "appendToJQuery:", "asJQuery"],
+source: unescape('addTodo%3A%20aTodo%0A%09aTodo%20id%3A%20count%20asString.%0A%09aTodo%20onTodoChangedDo%3A%20%5B%20%3Atodo%20%7C%20todos%20at%3A%20%28todos%20indexOf%3A%20todo%29%20put%3A%20todo%20%5D.%0A%09aTodo%20onDeleteClickedDo%3A%20%5B%20%3Atodo%20%7C%20self%20removeTodo%3A%20todo%20%5D.%0A%20%20%20%20%20%20%20%09todos%20add%3A%20aTodo.%0A%20%20%20%20%20%20%20%09aTodo%20appendToJQuery%3A%20container%20asJQuery.%0A%09count%20%3A%3D%20count%20+%201'),
+messageSends: ["id:", "asString", "onTodoChangedDo:", "at:put:", "indexOf:", "onDeleteClickedDo:", "removeTodo:", "add:", "appendToJQuery:", "asJQuery", unescape("+")],
 referencedClasses: []
 }),
 smalltalk.TodoList);
@@ -337,13 +337,12 @@ fn: function (anEvent){
 var self=this;
 var text=nil;
 var todo=nil;
-var html=nil;
 text=smalltalk.send(smalltalk.send(anEvent, "_target", []), "_value", []);
 todo=smalltalk.send((smalltalk.Todo || Todo), "_newWithText_", [text]);
 smalltalk.send(self, "_addTodo_", [todo]);
 return self;},
 args: ["anEvent"],
-source: unescape('handleInput%3A%20anEvent%0A%09%7C%20text%20todo%20html%20%7C%0A%20%20%20%20%20%20%20%20text%20%3A%3D%20anEvent%20target%20value.%0A%20%20%20%20%20%20%20%20todo%20%3A%3D%20Todo%20newWithText%3A%20text.%0A%20%09self%20addTodo%3A%20todo'),
+source: unescape('handleInput%3A%20anEvent%0A%09%7C%20text%20todo%20%7C%0A%20%20%20%20%20%20%20%20text%20%3A%3D%20anEvent%20target%20value.%0A%20%20%20%20%20%20%20%20todo%20%3A%3D%20Todo%20newWithText%3A%20text.%0A%20%09self%20addTodo%3A%20todo'),
 messageSends: ["value", "target", "newWithText:", "addTodo:"],
 referencedClasses: [smalltalk.Todo]
 }),
@@ -359,10 +358,11 @@ var self=this;
 smalltalk.send(self, "_initialize", [], smalltalk.Widget);
 self['@todos']=smalltalk.send((smalltalk.TodoStorage || TodoStorage), "_new", []);
 self['@container']=unescape("div%23todos%20ol");
+self['@count']=((($receiver = smalltalk.send(smalltalk.send(self['@todos'], "_size", []), "__eq", [(0)])).klass === smalltalk.Boolean) ? ($receiver ? (function(){return (1);})() : (function(){return ((($receiver = smalltalk.send(smalltalk.send(smalltalk.send(self['@todos'], "_collect_", [(function(each){return smalltalk.send(smalltalk.send(each, "_id", []), "_asNumber", []);})]), "_sort", []), "_last", [])).klass === smalltalk.Number) ? $receiver +(1) : smalltalk.send($receiver, "__plus", [(1)]));})()) : smalltalk.send($receiver, "_ifTrue_ifFalse_", [(function(){return (1);}), (function(){return ((($receiver = smalltalk.send(smalltalk.send(smalltalk.send(self['@todos'], "_collect_", [(function(each){return smalltalk.send(smalltalk.send(each, "_id", []), "_asNumber", []);})]), "_sort", []), "_last", [])).klass === smalltalk.Number) ? $receiver +(1) : smalltalk.send($receiver, "__plus", [(1)]));})]));
 return self;},
 args: [],
-source: unescape('initialize%0A%09super%20initialize.%0A%09todos%20%3A%3D%20TodoStorage%20new.%0A%09container%20%3A%3D%20%27div%23todos%20ol%27'),
-messageSends: ["initialize", "new"],
+source: unescape('initialize%0A%09super%20initialize.%0A%09todos%20%3A%3D%20TodoStorage%20new.%0A%09container%20%3A%3D%20%27div%23todos%20ol%27.%0A%09count%20%3A%3D%20todos%20size%20%3D%200%20ifTrue%3A%20%5B%201%20%5D%20ifFalse%3A%20%5B%28%20todos%20collect%3A%20%5B%20%3Aeach%20%7C%20each%20id%20asNumber%20%5D%29%20sort%20last%20+%201%20%5D'),
+messageSends: ["initialize", "new", "ifTrue:ifFalse:", unescape("%3D"), "size", unescape("+"), "last", "sort", "collect:", "asNumber", "id"],
 referencedClasses: [smalltalk.nil]
 }),
 smalltalk.TodoList);
@@ -442,13 +442,12 @@ selector: unescape('renderTodosOn%3A'),
 category: 'rendering',
 fn: function (html){
 var self=this;
-(function($rec){smalltalk.send($rec, "_id_", ["todos"]);return smalltalk.send($rec, "_with_", [(function(){return smalltalk.send(smalltalk.send(html, "_ol", []), "_with_", [(function(){return smalltalk.send(self['@todos'], "_do_", [(function(todo){var aTodo=nil;
-aTodo=smalltalk.send((smalltalk.Todo || Todo), "_fromDictionary_", [todo]);smalltalk.send(aTodo, "_onTodoChangedDo_", [(function(todo){return smalltalk.send(self['@todos'], "_at_put_", [smalltalk.send(smalltalk.send(todo, "_id", []), "_asNumber", []), todo]);})]);smalltalk.send(aTodo, "_onDeleteClickedDo_", [(function(todo){return smalltalk.send(self, "_removeTodo_", [todo]);})]);return smalltalk.send(aTodo, "_renderOn_", [html]);})]);})]);})]);})(smalltalk.send(html, "_div", []));
+(function($rec){smalltalk.send($rec, "_id_", ["todos"]);return smalltalk.send($rec, "_with_", [(function(){return smalltalk.send(smalltalk.send(html, "_ol", []), "_with_", [(function(){return smalltalk.send(self['@todos'], "_do_", [(function(aTodo){smalltalk.send(aTodo, "_onTodoChangedDo_", [(function(todo){return smalltalk.send(self['@todos'], "_at_put_", [smalltalk.send(self['@todos'], "_indexOf_", [todo]), todo]);})]);smalltalk.send(aTodo, "_onDeleteClickedDo_", [(function(todo){return smalltalk.send(self, "_removeTodo_", [todo]);})]);return smalltalk.send(aTodo, "_renderOn_", [html]);})]);})]);})]);})(smalltalk.send(html, "_div", []));
 return self;},
 args: ["html"],
-source: unescape('renderTodosOn%3A%20html%0A%09html%20div%0A%09%09id%3A%20%27todos%27%3B%0A%09%09with%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20html%20ol%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09with%3A%20%5B%20todos%20do%3A%20%5B%20%3Atodo%20%7C%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%20aTodo%20%7C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20%3A%3D%20Todo%20fromDictionary%3A%20todo.%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20onTodoChangedDo%3A%20%5B%20%3Atodo%20%7C%20todos%20at%3A%20%28todo%20id%20asNumber%29%20put%3A%20todo%20%5D.%0A%09%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20onDeleteClickedDo%3A%20%5B%20%3Atodo%20%7C%20self%20removeTodo%3A%20todo%20%5D.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20renderOn%3A%20html%20%5D%5D%5D'),
-messageSends: ["id:", "with:", "ol", "do:", "fromDictionary:", "onTodoChangedDo:", "at:put:", "asNumber", "id", "onDeleteClickedDo:", "removeTodo:", "renderOn:", "div"],
-referencedClasses: [smalltalk.Todo]
+source: unescape('renderTodosOn%3A%20html%0A%09html%20div%0A%09%09id%3A%20%27todos%27%3B%0A%09%09with%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20html%20ol%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09with%3A%20%5B%20todos%20do%3A%20%5B%20%3AaTodo%20%7C%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20onTodoChangedDo%3A%20%5B%20%3Atodo%20%7C%20todos%20at%3A%20%28todos%20indexOf%3A%20todo%29%20put%3A%20todo%20%5D.%0A%09%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20onDeleteClickedDo%3A%20%5B%20%3Atodo%20%7C%20self%20removeTodo%3A%20todo%20%5D.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20renderOn%3A%20html%20%5D%5D%5D'),
+messageSends: ["id:", "with:", "ol", "do:", "onTodoChangedDo:", "at:put:", "indexOf:", "onDeleteClickedDo:", "removeTodo:", "renderOn:", "div"],
+referencedClasses: []
 }),
 smalltalk.TodoList);
 
@@ -549,12 +548,12 @@ var anArray=nil;
 var aJSONArray=nil;
 aJSONArray=smalltalk.send(self['@storage'], "_getItem_", ["TodoList"]);
 anArray=(($receiver = aJSONArray) == nil || $receiver == undefined) ? (function(){return smalltalk.send(self, "_initializeStorage", []);})() : (function(){return smalltalk.send((typeof smalltalk == 'undefined' ? nil : smalltalk), "_readJSON_", [smalltalk.send((smalltalk.JSON || JSON), "_parse_", [aJSONArray])]);})();
-return anArray;
+return smalltalk.send(anArray, "_collect_", [(function(each){return smalltalk.send((smalltalk.Todo || Todo), "_fromDictionary_", [each]);})]);
 return self;},
 args: [],
-source: unescape('getArray%0A%09%7C%20anArray%20aJSONArray%20%7C%0A%09aJSONArray%20%3A%3D%20storage%20getItem%3A%20%27TodoList%27.%0A%09anArray%20%3A%3D%20aJSONArray%20ifNil%3A%20%5B%20self%20initializeStorage%20%5D%20ifNotNil%3A%20%5B%20smalltalk%20readJSON%3A%20%28JSON%20parse%3A%20aJSONArray%29%20%5D.%0A%09%5E%20anArray%0A%09'),
-messageSends: ["getItem:", "ifNil:ifNotNil:", "initializeStorage", "readJSON:", "parse:"],
-referencedClasses: []
+source: unescape('getArray%0A%09%7C%20anArray%20aJSONArray%20%7C%0A%09aJSONArray%20%3A%3D%20storage%20getItem%3A%20%27TodoList%27.%0A%09anArray%20%3A%3D%20aJSONArray%20ifNil%3A%20%5B%20self%20initializeStorage%20%5D%20ifNotNil%3A%20%5B%20smalltalk%20readJSON%3A%20%28JSON%20parse%3A%20aJSONArray%29%20%5D.%0A%09%5E%20anArray%20collect%3A%20%5B%20%3Aeach%20%7C%20Todo%20fromDictionary%3A%20each%20%5D%0A%09'),
+messageSends: ["getItem:", "ifNil:ifNotNil:", "initializeStorage", "readJSON:", "parse:", "collect:", "fromDictionary:"],
+referencedClasses: [smalltalk.Todo]
 }),
 smalltalk.TodoStorage);
 
@@ -569,7 +568,7 @@ self['@storage']=(typeof localStorage == 'undefined' ? nil : localStorage);
 self['@array']=smalltalk.send(self, "_getArray", []);
 return self;},
 args: [],
-source: unescape('initialize%0A%09storage%20%3A%3D%20localStorage.%0A%09array%20%3A%3D%20self%20getArray%20'),
+source: unescape('initialize%0A%09storage%20%3A%3D%20localStorage.%0A%09array%20%3A%3D%20self%20getArray.'),
 messageSends: ["getArray"],
 referencedClasses: []
 }),
@@ -633,12 +632,14 @@ selector: unescape('remove%3A'),
 category: 'adding/removing',
 fn: function (anObject){
 var self=this;
-smalltalk.send(self['@array'], "_remove_", [anObject]);
+var d=nil;
+d=smalltalk.send(self['@array'], "_detect_", [(function(each){return smalltalk.send(smalltalk.send(each, "_asJSON", []), "__eq", [smalltalk.send(anObject, "_asJSON", [])]);})]);
+smalltalk.send(self['@array'], "_remove_", [d]);
 smalltalk.send(self, "_save", []);
 return self;},
 args: ["anObject"],
-source: unescape('remove%3A%20anObject%0A%09array%20remove%3A%20anObject.%0A%09self%20save'),
-messageSends: ["remove:", "save"],
+source: unescape('remove%3A%20anObject%0A%09%7C%20d%20%7C%0A%09d%20%3A%3D%20array%20detect%3A%20%5B%20%3Aeach%20%7C%20each%20asJSON%20%3D%20anObject%20asJSON%20%5D.%20%0A%09array%20remove%3A%20d.%0A%09self%20save'),
+messageSends: ["detect:", unescape("%3D"), "asJSON", "remove:", "save"],
 referencedClasses: []
 }),
 smalltalk.TodoStorage);
@@ -671,6 +672,70 @@ return self;},
 args: [],
 source: unescape('size%0A%09%5E%20array%20size'),
 messageSends: ["size"],
+referencedClasses: []
+}),
+smalltalk.TodoStorage);
+
+smalltalk.addMethod(
+unescape('_collect_'),
+smalltalk.method({
+selector: unescape('collect%3A'),
+category: 'iterating',
+fn: function (aBlock){
+var self=this;
+return smalltalk.send(self['@array'], "_collect_", [aBlock]);
+return self;},
+args: ["aBlock"],
+source: unescape('collect%3A%20aBlock%0A%09%5E%20array%20collect%3A%20aBlock'),
+messageSends: ["collect:"],
+referencedClasses: []
+}),
+smalltalk.TodoStorage);
+
+smalltalk.addMethod(
+unescape('_select_'),
+smalltalk.method({
+selector: unescape('select%3A'),
+category: 'iterating',
+fn: function (aBlock){
+var self=this;
+return smalltalk.send(self['@array'], "_select_", [aBlock]);
+return self;},
+args: ["aBlock"],
+source: unescape('select%3A%20aBlock%0A%09%5E%20array%20select%3A%20aBlock'),
+messageSends: ["select:"],
+referencedClasses: []
+}),
+smalltalk.TodoStorage);
+
+smalltalk.addMethod(
+unescape('_detect_'),
+smalltalk.method({
+selector: unescape('detect%3A'),
+category: 'iterating',
+fn: function (aBlock){
+var self=this;
+return smalltalk.send(self['@array'], "_detect_", [aBlock]);
+return self;},
+args: ["aBlock"],
+source: unescape('detect%3A%20aBlock%0A%09%5E%20array%20detect%3A%20aBlock'),
+messageSends: ["detect:"],
+referencedClasses: []
+}),
+smalltalk.TodoStorage);
+
+smalltalk.addMethod(
+unescape('_indexOf_'),
+smalltalk.method({
+selector: unescape('indexOf%3A'),
+category: 'accessing',
+fn: function (anObject){
+var self=this;
+return smalltalk.send(self['@array'], "_indexOf_", [anObject]);
+return self;},
+args: ["anObject"],
+source: unescape('indexOf%3A%20anObject%0A%09%5E%20array%20indexOf%3A%20anObject'),
+messageSends: ["indexOf:"],
 referencedClasses: []
 }),
 smalltalk.TodoStorage);

@@ -1,5 +1,5 @@
 Widget subclass: #Todo
-	instanceVariableNames: 'observers isDone text id onTodoChanged onDeleteClicked'
+	instanceVariableNames: 'isDone text id onTodoChanged onDeleteClicked'
 	category: 'TodoList'!
 
 !Todo methodsFor: 'accessing'!
@@ -45,7 +45,6 @@ onDeleteClickedDo: aBlock
 initialize
 	super initialize.
 	isDone := false.
-	observers := Array new.
 ! !
 
 !Todo methodsFor: 'rendering'!
@@ -107,17 +106,18 @@ fromDictionary: aDict withTodoChangedCallback: aBlock withDeleteClickedCallback:
 ! !
 
 Widget subclass: #TodoList
-	instanceVariableNames: 'todos container'
+	instanceVariableNames: 'todos container count'
 	category: 'TodoList'!
 
 !TodoList methodsFor: 'adding/removing'!
 
 addTodo: aTodo
-	aTodo id ifNil: [ aTodo id: (todos lenght + 1) asString ].
-	aTodo onTodoChangedDo: [ :todo | todos at: (todo id asNumber) put: todo ].
+	aTodo id: count asString.
+	aTodo onTodoChangedDo: [ :todo | todos at: (todos indexOf: todo) put: todo ].
 	aTodo onDeleteClickedDo: [ :todo | self removeTodo: todo ].
        	todos add: aTodo.
        	aTodo appendToJQuery: container asJQuery.
+	count := count + 1
 !
 
 removeTodo: aTodo
@@ -128,7 +128,7 @@ removeTodo: aTodo
 !TodoList methodsFor: 'events'!
 
 handleInput: anEvent
-	| text todo html |
+	| text todo |
         text := anEvent target value.
         todo := Todo newWithText: text.
  	self addTodo: todo
@@ -139,7 +139,8 @@ handleInput: anEvent
 initialize
 	super initialize.
 	todos := TodoStorage new.
-	container := 'div#todos ol'
+	container := 'div#todos ol'.
+	count := todos size = 0 ifTrue: [ 1 ] ifFalse: [( todos collect: [ :each | each id asNumber ]) sort last + 1 ]
 ! !
 
 !TodoList methodsFor: 'rendering'!
@@ -196,10 +197,8 @@ renderTodosOn: html
 		id: 'todos';
 		with: [
                   html ol
-                  	with: [ todos do: [ :todo | 
-                                           | aTodo |
-                                           aTodo := Todo fromDictionary: todo. 
-                                           aTodo onTodoChangedDo: [ :todo | todos at: (todo id asNumber) put: todo ].
+                  	with: [ todos do: [ :aTodo | 
+                                           aTodo onTodoChangedDo: [ :todo | todos at: (todos indexOf: todo) put: todo ].
 	                                   aTodo onDeleteClickedDo: [ :todo | self removeTodo: todo ].
                                            aTodo renderOn: html ]]]
 ! !
@@ -229,7 +228,7 @@ getArray
 	| anArray aJSONArray |
 	aJSONArray := storage getItem: 'TodoList'.
 	anArray := aJSONArray ifNil: [ self initializeStorage ] ifNotNil: [ smalltalk readJSON: (JSON parse: aJSONArray) ].
-	^ anArray
+	^ anArray collect: [ :each | Todo fromDictionary: each ]
 !
 
 setArray
@@ -242,6 +241,10 @@ lenght
 
 size
 	^ array size
+!
+
+indexOf: anObject
+	^ array indexOf: anObject
 ! !
 
 !TodoStorage methodsFor: 'adding/removing'!
@@ -252,7 +255,9 @@ add: anObject
 !
 
 remove: anObject
-	array remove: anObject.
+	| d |
+	d := array detect: [ :each | each asJSON = anObject asJSON ]. 
+	array remove: d.
 	self save
 ! !
 
@@ -260,7 +265,7 @@ remove: anObject
 
 initialize
 	storage := localStorage.
-	array := self getArray
+	array := self getArray.
 !
 
 initializeStorage
@@ -275,6 +280,18 @@ initializeStorage
 do: aBlock
 	array do: aBlock.
 	self save.
+!
+
+collect: aBlock
+	^ array collect: aBlock
+!
+
+select: aBlock
+	^ array select: aBlock
+!
+
+detect: aBlock
+	^ array detect: aBlock
 ! !
 
 !TodoStorage methodsFor: 'persistence'!
