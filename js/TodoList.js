@@ -1,4 +1,4 @@
-smalltalk.addClass('Todo', smalltalk.Widget, ['observers', 'isDone', 'text', 'id', 'onTodoChanged'], 'TodoList');
+smalltalk.addClass('Todo', smalltalk.Widget, ['observers', 'isDone', 'text', 'id', 'onTodoChanged', 'onDeleteClicked'], 'TodoList');
 smalltalk.addMethod(
 unescape('_initialize'),
 smalltalk.method({
@@ -137,11 +137,12 @@ category: 'rendering',
 fn: function (html){
 var self=this;
 var input=nil;
-(function($rec){smalltalk.send($rec, "_id_", [smalltalk.send(self, "_id", [])]);return smalltalk.send($rec, "_with_", [(function(){input=(function($rec){smalltalk.send($rec, "_type_", ["checkbox"]);return smalltalk.send($rec, "_onClick_", [(function(){smalltalk.send(self, "_toggleIsDone", []);smalltalk.send(self['@onTodoChanged'], "_value_", [self]);return smalltalk.send(smalltalk.send(smalltalk.send(input, "_asJQuery", []), "_next", []), "_toggleClass_", ["done"]);})]);})(smalltalk.send(html, "_input", []));return smalltalk.send(smalltalk.send(html, "_span", []), "_with_", [self['@text']]);})]);})(smalltalk.send(html, "_li", []));
+var delete_=nil;
+(function($rec){smalltalk.send($rec, "_id_", [smalltalk.send(self, "_id", [])]);return smalltalk.send($rec, "_with_", [(function(){input=(function($rec){smalltalk.send($rec, "_type_", ["checkbox"]);return smalltalk.send($rec, "_onClick_", [(function(){smalltalk.send(self, "_toggleIsDone", []);smalltalk.send(self['@onTodoChanged'], "_value_", [self]);return smalltalk.send(smalltalk.send(smalltalk.send(input, "_asJQuery", []), "_next", []), "_toggleClass_", ["done"]);})]);})(smalltalk.send(html, "_input", []));smalltalk.send(smalltalk.send(html, "_span", []), "_with_", [self['@text']]);return delete_=(function($rec){smalltalk.send($rec, "_with_", [unescape("%20%20%5Bx%5D")]);return smalltalk.send($rec, "_onClick_", [(function(){return smalltalk.send(self['@onDeleteClicked'], "_value_", [self]);})]);})(smalltalk.send(html, "_span", []));})]);})(smalltalk.send(html, "_li", []));
 ((($receiver = self['@isDone']).klass === smalltalk.Boolean) ? ($receiver ? (function(){smalltalk.send(input, "_at_put_", ["checked", "checked"]);return smalltalk.send(smalltalk.send(smalltalk.send(input, "_asJQuery", []), "_next", []), "_addClass_", ["done"]);})() : nil) : smalltalk.send($receiver, "_ifTrue_", [(function(){smalltalk.send(input, "_at_put_", ["checked", "checked"]);return smalltalk.send(smalltalk.send(smalltalk.send(input, "_asJQuery", []), "_next", []), "_addClass_", ["done"]);})]));
 return self;},
 args: ["html"],
-source: unescape('renderOn%3A%20html%0A%09%7C%20input%20%7C%0A%09html%20li%0A%09%09id%3A%20self%20id%3B%0A%09%09with%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20input%20%3A%3D%20html%20input%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09type%3A%20%27checkbox%27%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09onClick%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self%20toggleIsDone.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20onTodoChanged%20value%3A%20self.%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%28input%20asJQuery%20next%29%20toggleClass%3A%20%27done%27%20%5D.%0A%09%09html%20span%20with%3A%20text%20%5D.%0A%09isDone%20ifTrue%3A%20%5B%20%0A%20%20%20%20%20%20%20%20%20%20input%20at%3A%20%27checked%27%20put%3A%20%27checked%27.%0A%20%20%20%20%20%20%20%20%20%20%28input%20asJQuery%20next%29%20addClass%3A%20%27done%27%5D.'),
+source: unescape('renderOn%3A%20html%0A%09%7C%20input%20delete%20%7C%0A%09html%20li%0A%09%09id%3A%20self%20id%3B%0A%09%09with%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20input%20%3A%3D%20html%20input%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09type%3A%20%27checkbox%27%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09onClick%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20self%20toggleIsDone.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20onTodoChanged%20value%3A%20self.%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%28input%20asJQuery%20next%29%20toggleClass%3A%20%27done%27%20%5D.%0A%09%09html%20span%20with%3A%20text%20.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20delete%20%3A%3D%20html%20span%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20with%3A%20%27%20%20%5Bx%5D%27%3B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20onClick%3A%20%5B%20onDeleteClicked%20value%3A%20self%20%5D%5D.%0A%09isDone%20ifTrue%3A%20%5B%20%0A%20%20%20%20%20%20%20%20%20%20input%20at%3A%20%27checked%27%20put%3A%20%27checked%27.%0A%20%20%20%20%20%20%20%20%20%20%28input%20asJQuery%20next%29%20addClass%3A%20%27done%27%5D.'),
 messageSends: ["id:", "id", "with:", "type:", "onClick:", "toggleIsDone", "value:", "toggleClass:", "next", "asJQuery", "input", "span", "li", "ifTrue:", "at:put:", "addClass:"],
 referencedClasses: []
 }),
@@ -158,6 +159,38 @@ self['@onTodoChanged']=aBlock;
 return self;},
 args: ["aBlock"],
 source: unescape('onTodoChangedDo%3A%20aBlock%0A%09onTodoChanged%20%3A%3D%20aBlock'),
+messageSends: [],
+referencedClasses: []
+}),
+smalltalk.Todo);
+
+smalltalk.addMethod(
+unescape('__eq'),
+smalltalk.method({
+selector: unescape('%3D'),
+category: 'testing',
+fn: function (aTodo){
+var self=this;
+return smalltalk.send(smalltalk.send(self, "_id", []), "__eq", [smalltalk.send(aTodo, "_id", [])]);
+return self;},
+args: ["aTodo"],
+source: unescape('%3D%20aTodo%0A%09%5E%20self%20id%20%3D%20aTodo%20id'),
+messageSends: [unescape("%3D"), "id"],
+referencedClasses: []
+}),
+smalltalk.Todo);
+
+smalltalk.addMethod(
+unescape('_onDeleteClickedDo_'),
+smalltalk.method({
+selector: unescape('onDeleteClickedDo%3A'),
+category: 'accessing',
+fn: function (aBlock){
+var self=this;
+self['@onDeleteClicked']=aBlock;
+return self;},
+args: ["aBlock"],
+source: unescape('onDeleteClickedDo%3A%20aBlock%0A%09onDeleteClicked%20%3A%3D%20aBlock'),
 messageSends: [],
 referencedClasses: []
 }),
@@ -220,6 +253,26 @@ referencedClasses: []
 }),
 smalltalk.Todo.klass);
 
+smalltalk.addMethod(
+unescape('_fromDictionary_withTodoChangedCallback_withDeleteClickedCallback_'),
+smalltalk.method({
+selector: unescape('fromDictionary%3AwithTodoChangedCallback%3AwithDeleteClickedCallback%3A'),
+category: 'not yet classified',
+fn: function (aDict, aBlock, oBlock){
+var self=this;
+var todo=nil;
+todo=smalltalk.send(self, "_fromDictionary_", [aDict]);
+smalltalk.send(todo, "_onTodoChangedDo_", [aBlock]);
+smalltalk.send(todo, "_onDeleteClickedDo_", [oBlock]);
+return todo;
+return self;},
+args: ["aDict", "aBlock", "oBlock"],
+source: unescape('fromDictionary%3A%20aDict%20withTodoChangedCallback%3A%20aBlock%20withDeleteClickedCallback%3A%20oBlock%0A%09%7C%20todo%20%7C%0A%09todo%20%3A%3D%20self%20fromDictionary%3A%20aDict.%0A%09todo%20onTodoChangedDo%3A%20aBlock.%0A%09todo%20onDeleteClickedDo%3A%20oBlock.%0A%09%5E%20todo'),
+messageSends: ["fromDictionary:", "onTodoChangedDo:", "onDeleteClickedDo:"],
+referencedClasses: []
+}),
+smalltalk.Todo.klass);
+
 
 smalltalk.addClass('TodoList', smalltalk.Widget, ['todos', 'container'], 'TodoList');
 smalltalk.addMethod(
@@ -229,14 +282,15 @@ selector: unescape('addTodo%3A'),
 category: 'adding/removing',
 fn: function (aTodo){
 var self=this;
-smalltalk.send(aTodo, "_id_", [smalltalk.send(((($receiver = smalltalk.send(self['@todos'], "_lenght", [])).klass === smalltalk.Number) ? $receiver +(1) : smalltalk.send($receiver, "__plus", [(1)])), "_asString", [])]);
+(($receiver = smalltalk.send(aTodo, "_id", [])) == nil || $receiver == undefined) ? (function(){return smalltalk.send(aTodo, "_id_", [smalltalk.send(((($receiver = smalltalk.send(self['@todos'], "_lenght", [])).klass === smalltalk.Number) ? $receiver +(1) : smalltalk.send($receiver, "__plus", [(1)])), "_asString", [])]);})() : $receiver;
 smalltalk.send(aTodo, "_onTodoChangedDo_", [(function(todo){return smalltalk.send(self['@todos'], "_at_put_", [smalltalk.send(smalltalk.send(todo, "_id", []), "_asNumber", []), todo]);})]);
+smalltalk.send(aTodo, "_onDeleteClickedDo_", [(function(todo){return smalltalk.send(self, "_removeTodo_", [todo]);})]);
 smalltalk.send(self['@todos'], "_add_", [aTodo]);
 smalltalk.send(aTodo, "_appendToJQuery_", [smalltalk.send(self['@container'], "_asJQuery", [])]);
 return self;},
 args: ["aTodo"],
-source: unescape('addTodo%3A%20aTodo%0A%09aTodo%20id%3A%20%28todos%20lenght%20+%201%29%20asString.%0A%09aTodo%20onTodoChangedDo%3A%20%5B%20%3Atodo%20%7C%20todos%20at%3A%20%28todo%20id%20asNumber%29%20put%3A%20todo%20%5D.%0A%20%20%20%20%20%20%20%09todos%20add%3A%20aTodo.%0A%20%20%20%20%20%20%20%09aTodo%20appendToJQuery%3A%20container%20asJQuery.'),
-messageSends: ["id:", "asString", unescape("+"), "lenght", "onTodoChangedDo:", "at:put:", "asNumber", "id", "add:", "appendToJQuery:", "asJQuery"],
+source: unescape('addTodo%3A%20aTodo%0A%09aTodo%20id%20ifNil%3A%20%5B%20aTodo%20id%3A%20%28todos%20lenght%20+%201%29%20asString%20%5D.%0A%09aTodo%20onTodoChangedDo%3A%20%5B%20%3Atodo%20%7C%20todos%20at%3A%20%28todo%20id%20asNumber%29%20put%3A%20todo%20%5D.%0A%09aTodo%20onDeleteClickedDo%3A%20%5B%20%3Atodo%20%7C%20self%20removeTodo%3A%20todo%20%5D.%0A%20%20%20%20%20%20%20%09todos%20add%3A%20aTodo.%0A%20%20%20%20%20%20%20%09aTodo%20appendToJQuery%3A%20container%20asJQuery.'),
+messageSends: ["ifNil:", "id", "id:", "asString", unescape("+"), "lenght", "onTodoChangedDo:", "at:put:", "asNumber", "onDeleteClickedDo:", "removeTodo:", "add:", "appendToJQuery:", "asJQuery"],
 referencedClasses: []
 }),
 smalltalk.TodoList);
@@ -248,11 +302,12 @@ selector: unescape('removeTodo%3A'),
 category: 'adding/removing',
 fn: function (aTodo){
 var self=this;
-
+smalltalk.send(self['@todos'], "_remove_", [aTodo]);
+smalltalk.send(smalltalk.send(smalltalk.send(unescape("li%23"), "__comma", [smalltalk.send(aTodo, "_id", [])]), "_asJQuery", []), "_remove", []);
 return self;},
 args: ["aTodo"],
-source: unescape('removeTodo%3A%20aTodo'),
-messageSends: [],
+source: unescape('removeTodo%3A%20aTodo%0A%09todos%20remove%3A%20aTodo.%0A%09%28%27li%23%27%2C%20aTodo%20id%29%20asJQuery%20remove'),
+messageSends: ["remove:", "remove", "asJQuery", unescape("%2C"), "id"],
 referencedClasses: []
 }),
 smalltalk.TodoList);
@@ -387,11 +442,12 @@ selector: unescape('renderTodosOn%3A'),
 category: 'rendering',
 fn: function (html){
 var self=this;
-(function($rec){smalltalk.send($rec, "_id_", ["todos"]);return smalltalk.send($rec, "_with_", [(function(){return smalltalk.send(smalltalk.send(html, "_ol", []), "_with_", [(function(){return smalltalk.send(self['@todos'], "_do_", [(function(todo){return smalltalk.send(smalltalk.send((smalltalk.Todo || Todo), "_fromDictionary_withCallback_", [todo, (function(todo){return smalltalk.send(self['@todos'], "_at_put_", [smalltalk.send(smalltalk.send(todo, "_id", []), "_asNumber", []), todo]);})]), "_renderOn_", [html]);})]);})]);})]);})(smalltalk.send(html, "_div", []));
+(function($rec){smalltalk.send($rec, "_id_", ["todos"]);return smalltalk.send($rec, "_with_", [(function(){return smalltalk.send(smalltalk.send(html, "_ol", []), "_with_", [(function(){return smalltalk.send(self['@todos'], "_do_", [(function(todo){var aTodo=nil;
+aTodo=smalltalk.send((smalltalk.Todo || Todo), "_fromDictionary_", [todo]);smalltalk.send(aTodo, "_onTodoChangedDo_", [(function(todo){return smalltalk.send(self['@todos'], "_at_put_", [smalltalk.send(smalltalk.send(todo, "_id", []), "_asNumber", []), todo]);})]);smalltalk.send(aTodo, "_onDeleteClickedDo_", [(function(todo){return smalltalk.send(self, "_removeTodo_", [todo]);})]);return smalltalk.send(aTodo, "_renderOn_", [html]);})]);})]);})]);})(smalltalk.send(html, "_div", []));
 return self;},
 args: ["html"],
-source: unescape('renderTodosOn%3A%20html%0A%09html%20div%0A%09%09id%3A%20%27todos%27%3B%0A%09%09with%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20html%20ol%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09with%3A%20%5B%20todos%20do%3A%20%5B%20%3Atodo%20%7C%20%28Todo%20fromDictionary%3A%20todo%20withCallback%3A%20%20%5B%20%3Atodo%20%7C%20todos%20at%3A%20%28todo%20id%20asNumber%29%20put%3A%20todo%20%5D%29%20renderOn%3A%20html%20%5D%5D%5D'),
-messageSends: ["id:", "with:", "ol", "do:", "renderOn:", "fromDictionary:withCallback:", "at:put:", "asNumber", "id", "div"],
+source: unescape('renderTodosOn%3A%20html%0A%09html%20div%0A%09%09id%3A%20%27todos%27%3B%0A%09%09with%3A%20%5B%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20html%20ol%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%09with%3A%20%5B%20todos%20do%3A%20%5B%20%3Atodo%20%7C%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7C%20aTodo%20%7C%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20%3A%3D%20Todo%20fromDictionary%3A%20todo.%20%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20onTodoChangedDo%3A%20%5B%20%3Atodo%20%7C%20todos%20at%3A%20%28todo%20id%20asNumber%29%20put%3A%20todo%20%5D.%0A%09%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20onDeleteClickedDo%3A%20%5B%20%3Atodo%20%7C%20self%20removeTodo%3A%20todo%20%5D.%0A%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20aTodo%20renderOn%3A%20html%20%5D%5D%5D'),
+messageSends: ["id:", "with:", "ol", "do:", "fromDictionary:", "onTodoChangedDo:", "at:put:", "asNumber", "id", "onDeleteClickedDo:", "removeTodo:", "renderOn:", "div"],
 referencedClasses: [smalltalk.Todo]
 }),
 smalltalk.TodoList);

@@ -1,5 +1,5 @@
 Widget subclass: #Todo
-	instanceVariableNames: 'observers isDone text id onTodoChanged'
+	instanceVariableNames: 'observers isDone text id onTodoChanged onDeleteClicked'
 	category: 'TodoList'!
 
 !Todo methodsFor: 'accessing'!
@@ -34,6 +34,10 @@ id: aString
 
 onTodoChangedDo: aBlock
 	onTodoChanged := aBlock
+!
+
+onDeleteClickedDo: aBlock
+	onDeleteClicked := aBlock
 ! !
 
 !Todo methodsFor: 'initializing'!
@@ -47,7 +51,7 @@ initialize
 !Todo methodsFor: 'rendering'!
 
 renderOn: html
-	| input |
+	| input delete |
 	html li
 		id: self id;
 		with: [
@@ -57,10 +61,19 @@ renderOn: html
                           self toggleIsDone.
                           onTodoChanged value: self. 
                           (input asJQuery next) toggleClass: 'done' ].
-		html span with: text ].
+		html span with: text .
+                delete := html span
+                  with: '  [x]';
+                  onClick: [ onDeleteClicked value: self ]].
 	isDone ifTrue: [ 
           input at: 'checked' put: 'checked'.
           (input asJQuery next) addClass: 'done'].
+! !
+
+!Todo methodsFor: 'testing'!
+
+= aTodo
+	^ self id = aTodo id
 ! !
 
 !Todo class methodsFor: 'not yet classified'!
@@ -83,6 +96,14 @@ fromDictionary: aDict withCallback: aBlock
 	todo := self fromDictionary: aDict.
 	todo onTodoChangedDo: aBlock.
 	^ todo
+!
+
+fromDictionary: aDict withTodoChangedCallback: aBlock withDeleteClickedCallback: oBlock
+	| todo |
+	todo := self fromDictionary: aDict.
+	todo onTodoChangedDo: aBlock.
+	todo onDeleteClickedDo: oBlock.
+	^ todo
 ! !
 
 Widget subclass: #TodoList
@@ -92,13 +113,16 @@ Widget subclass: #TodoList
 !TodoList methodsFor: 'adding/removing'!
 
 addTodo: aTodo
-	aTodo id: (todos lenght + 1) asString.
+	aTodo id ifNil: [ aTodo id: (todos lenght + 1) asString ].
 	aTodo onTodoChangedDo: [ :todo | todos at: (todo id asNumber) put: todo ].
+	aTodo onDeleteClickedDo: [ :todo | self removeTodo: todo ].
        	todos add: aTodo.
        	aTodo appendToJQuery: container asJQuery.
 !
 
 removeTodo: aTodo
+	todos remove: aTodo.
+	('li#', aTodo id) asJQuery remove
 ! !
 
 !TodoList methodsFor: 'events'!
@@ -172,7 +196,12 @@ renderTodosOn: html
 		id: 'todos';
 		with: [
                   html ol
-                  	with: [ todos do: [ :todo | (Todo fromDictionary: todo withCallback:  [ :todo | todos at: (todo id asNumber) put: todo ]) renderOn: html ]]]
+                  	with: [ todos do: [ :todo | 
+                                           | aTodo |
+                                           aTodo := Todo fromDictionary: todo. 
+                                           aTodo onTodoChangedDo: [ :todo | todos at: (todo id asNumber) put: todo ].
+	                                   aTodo onDeleteClickedDo: [ :todo | self removeTodo: todo ].
+                                           aTodo renderOn: html ]]]
 ! !
 
 !TodoList class methodsFor: 'not yet classified'!
